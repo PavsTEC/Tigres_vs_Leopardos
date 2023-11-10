@@ -158,20 +158,127 @@ void colocar_ficha(struct tablero* mi_tablero, int jugador) {
   }
 }
 
+void mover_ficha(struct tablero* mi_tablero, int jugador) {
+  int columna_origen, fila_origen, columna_destino, fila_destino;
+  printf("Jugador %d, ingrese la columna de la ficha a mover (0, 1, 2): ", jugador);
+  scanf("%d", &columna_origen);
+
+  if (columna_origen >= 0 && columna_origen <= 2) {
+    printf("Jugador %d, ingrese la fila de la ficha a mover (0 a %d): ", jugador, mi_tablero->altura - 1);
+    scanf("%d", &fila_origen);
+
+    if (fila_origen >= 0 && fila_origen < mi_tablero->altura) {
+      struct lista_doble* columna_origen_seleccionada;
+      switch (columna_origen) {
+        case 0:
+          columna_origen_seleccionada = mi_tablero->col0;
+          break;
+        case 1:
+          columna_origen_seleccionada = mi_tablero->col1;
+          break;
+        case 2:
+          columna_origen_seleccionada = mi_tablero->col2;
+          break;
+        default:
+          printf("Columna no válida\n");
+          return;
+      }
+      
+      // Encuentra el nodo en la posición indicada.
+      struct nodo* nodo_origen = columna_origen_seleccionada->cabeza->sig;
+      for (int i = 0; i < fila_origen; i++) {
+        if (nodo_origen != NULL) {
+          nodo_origen = nodo_origen->sig;
+        } else {
+          printf("Fila no válida\n");
+          return;
+        }
+      }
+
+      if (nodo_origen->valor == jugador) {
+        printf("Jugador %d, ingrese la columna de destino (0, 1, 2): ", jugador);
+        scanf("%d", &columna_destino);
+
+        if (columna_destino >= 0 && columna_destino <= 2) {
+          printf("Jugador %d, ingrese la fila de destino (0 a %d): ", jugador, mi_tablero->altura - 1);
+          scanf("%d", &fila_destino);
+
+          if (fila_destino >= 0 && fila_destino < mi_tablero->altura) {
+            struct lista_doble* columna_destino_seleccionada;
+            switch (columna_destino) {
+              case 0:
+                columna_destino_seleccionada = mi_tablero->col0;
+                break;
+              case 1:
+                columna_destino_seleccionada = mi_tablero->col1;
+                break;
+              case 2:
+                columna_destino_seleccionada = mi_tablero->col2;
+                break;
+              default:
+                printf("Columna no válida\n");
+                return;
+            }
+
+            // Encuentra el nodo en la posición de destino.
+            struct nodo* nodo_destino = columna_destino_seleccionada->cabeza->sig;
+            for (int i = 0; i < fila_destino; i++) {
+              if (nodo_destino != NULL) {
+                nodo_destino = nodo_destino->sig;
+              } else {
+                printf("Fila no válida\n");
+                return;
+              }
+            }
+
+            // Realiza el movimiento de la ficha.
+            nodo_destino->valor = jugador;
+            nodo_origen->valor = 0;
+          } else {
+            printf("Fila de destino no válida\n");
+          }
+        } else {
+          printf("Columna de destino no válida\n");
+        }
+      } else {
+        printf("No hay una ficha del jugador %d en la posición de origen\n", jugador);
+      }
+    } else {
+      printf("Fila de origen no válida\n");
+    }
+  } else {
+    printf("Columna de origen no válida\n");
+  }
+}
+
 int main() {
   struct tablero* mi_tablero = crear_tablero();
-  int jugador_actual = 1;
+  int jugador1 = 1;
+  int jugador2 = 2;
+  int jugador_actual = jugador1; // Empieza el juego con el jugador1
 
   mostrar_tablero(mi_tablero);
 
   for (int turno = 0; turno < mi_tablero->altura * 3; turno++) {
-    colocar_ficha(mi_tablero, jugador_actual);
+    printf("\nTurno %d - Jugador %d\n", turno + 1, jugador_actual);
 
+    colocar_ficha(mi_tablero, jugador_actual);
     mostrar_tablero(mi_tablero);
+    
+    //mover_ficha(mi_tablero, jugador_actual);
+   // mostrar_tablero(mi_tablero);
+
 
     // Cambia al siguiente jugador
-    jugador_actual = (jugador_actual == 1) ? 2 : 1;
+    if (jugador_actual == jugador1) {
+      jugador_actual = jugador2;
+    } else {
+      jugador_actual = jugador1;
+    }
   }
 
   return 0;
 }
+
+     
+
