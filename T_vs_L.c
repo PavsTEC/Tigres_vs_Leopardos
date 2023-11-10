@@ -71,7 +71,7 @@ void mostrar_tablero(const struct tablero* mi_tablero) {
   // Arreglo de nodos para recorrer las 3 columnas del tablero.
   struct nodo* nodos_actuales[3] = {columnas[0]->cabeza->sig, columnas[1]->cabeza->sig, columnas[2]->cabeza->sig};
 
-  // Variables para dar formato a la piramide
+  // Variables para dar formato a la pirámide.
   int sangria = mi_tablero->altura;
   int separacion = 1;
 
@@ -79,9 +79,9 @@ void mostrar_tablero(const struct tablero* mi_tablero) {
   for (int i = 0; i < sangria; i++) {
     printf(" ");
   }
-  sangria-=2;
+  sangria -= 2;
 
-  //Imprime el primer valor(la punta del triangulo).
+  // Imprime el primer valor(la punta del triángulo).
   printf("%d", columnas[0]->cabeza->valor);
   printf("\n");
 
@@ -95,7 +95,7 @@ void mostrar_tablero(const struct tablero* mi_tablero) {
     for (int i = 0; i < 3; i++) {
       printf("%d", nodos_actuales[i]->valor);
 
-      // Imprime la separacion entre los valores
+      // Imprime la separación entre los valores.
       for (int i = 0; i < separacion; i++) {
         printf(" ");
       }
@@ -112,12 +112,66 @@ void mostrar_tablero(const struct tablero* mi_tablero) {
   }
 }
 
+void colocar_ficha(struct tablero* mi_tablero, int jugador) {
+  int columna, fila;
+  printf("Jugador %d, ingrese la columna (0, 1, 2): ", jugador);
+  scanf("%d", &columna);
 
+  if (columna >= 0 && columna <= 2) {
+    printf("Jugador %d, ingrese la fila (0 a %d): ", jugador, mi_tablero->altura - 1);
+    scanf("%d", &fila);
+
+    if (fila >= 0 && fila < mi_tablero->altura) {
+      struct lista_doble* columna_seleccionada;
+      switch (columna) {
+        case 0:
+          columna_seleccionada = mi_tablero->col0;
+          break;
+        case 1:
+          columna_seleccionada = mi_tablero->col1;
+          break;
+        case 2:
+          columna_seleccionada = mi_tablero->col2;
+          break;
+        default:
+          printf("Columna no válida\n");
+          return;
+      }
+
+      // Encuentra el nodo en la posición indicada y coloca la ficha del jugador.
+      struct nodo* nodo = columna_seleccionada->cabeza->sig;
+      for (int i = 0; i < fila; i++) {
+        if (nodo != NULL) {
+          nodo = nodo->sig;
+        } else {
+          printf("Fila no válida\n");
+          return;
+        }
+      }
+
+      nodo->valor = jugador;
+    } else {
+      printf("Fila no válida\n");
+    }
+  } else {
+    printf("Columna no válida\n");
+  }
+}
 
 int main() {
   struct tablero* mi_tablero = crear_tablero();
-  
+  int jugador_actual = 1;
+
   mostrar_tablero(mi_tablero);
+
+  for (int turno = 0; turno < mi_tablero->altura * 3; turno++) {
+    colocar_ficha(mi_tablero, jugador_actual);
+
+    mostrar_tablero(mi_tablero);
+
+    // Cambia al siguiente jugador
+    jugador_actual = (jugador_actual == 1) ? 2 : 1;
+  }
 
   return 0;
 }
