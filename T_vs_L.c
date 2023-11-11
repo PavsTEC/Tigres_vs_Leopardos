@@ -125,10 +125,15 @@ int colocar_ficha(struct tablero* mi_tablero, int jugador) {
 
   // Si es en la punta de la piramide coloca el valor en las 3 cabezas
   if(fila == 0) {
-    mi_tablero->col0->cabeza->valor = jugador;
-    mi_tablero->col1->cabeza->valor = jugador;
-    mi_tablero->col2->cabeza->valor = jugador;
-    return 1;
+    if(mi_tablero->col0->cabeza->valor == 0) {
+      mi_tablero->col0->cabeza->valor = jugador;
+      mi_tablero->col1->cabeza->valor = jugador;
+      mi_tablero->col2->cabeza->valor = jugador;
+      return 1;
+    } else {
+      printf("La posicion ya esta ocupada\n");
+      return 0;
+    }
   }
 
   printf("Jugador %d, ingrese la columna (0 a 2): ", jugador);
