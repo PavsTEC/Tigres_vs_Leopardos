@@ -160,7 +160,6 @@ int colocar_ficha(struct tablero* mi_tablero, int jugador) {
   return 1;
 }
 
-
 int mover_ficha(struct tablero* mi_tablero, int jugador) {
   int fila_origen, columna_origen, fila_destino, columna_destino;
   
@@ -262,9 +261,70 @@ int mover_ficha(struct tablero* mi_tablero, int jugador) {
   return 1;
 }
 
+//Retorna el valor que hay en la fila y columna o un 99 en caso de estar fuera de rango
+int getValor(struct tablero* mi_tablero, int fila, int columna) {
+  if (fila < 0 || fila >= mi_tablero->altura || columna < 0 || columna > 2) {
+    return 99;  // Fuera de rango
+  }
+
+  struct lista_doble* columnas[3] = {mi_tablero->col0, mi_tablero->col1, mi_tablero->col2};
+  struct nodo* nodo = columnas[columna]->cabeza;
+
+  for (int i = 0; i < fila; i++) {
+    if (nodo != NULL) {
+      nodo = nodo->sig;
+    } else {
+      return 99;  // Fuera de rango
+    }
+  }
+
+  return nodo->valor;
+}
 
 int ganador(struct tablero* mi_tablero, int jugador) {
-  return 0;
+  if(jugador == 1) {
+    //Arreglo con las columnas del tablero para acceder mas facilmente
+    struct lista_doble* columnas[3] = {mi_tablero->col0, mi_tablero->col1, mi_tablero->col2};
+
+    // Arreglo de nodos para recorrer las 3 columnas del tablero.
+    struct nodo* nodos_actuales[3] = {columnas[0]->cabeza->sig, columnas[1]->cabeza->sig, columnas[2]->cabeza->sig};
+
+    //Paso 1. Encontrar donde esta la ficha del jugador 1(el cazador).
+    int fila = 0;
+    int columna = 0;
+
+    //Recorrido
+    for (int j = 0; nodos_actuales[0] != NULL; j++) {
+      for (int i = 0; i < 3; i++) {
+        if(nodos_actuales[i]->valor == 1) {
+          columna = i;
+          fila = j;
+        }
+      }
+
+      // Avanza a los siguientes nodos.
+      for (int i = 0; i < 3; i++) {
+        nodos_actuales[i] = nodos_actuales[i]->sig;
+      }
+    }//Para este punto ya se encontro la fila y columna
+
+    //Paso 2. Verificar si el cazador esta encerrado
+    if(
+      getValor(mi_tablero, fila-1, columna) > 0 &&
+      getValor(mi_tablero, fila+1, columna) > 0 &&
+      getValor(mi_tablero, fila, columna+1) > 0 &&
+      getValor(mi_tablero, fila, columna-1) > 0 &&
+      getValor(mi_tablero, fila-2, columna) > 0 &&
+      getValor(mi_tablero, fila+2, columna) > 0 &&
+      getValor(mi_tablero, fila, columna+2) > 0 &&
+      getValor(mi_tablero, fila, columna-2) > 0
+    ) {
+      return 1;
+    }
+    return 0;
+  } else {
+    return 0;
+  }
 }
 
 int main() {
@@ -301,6 +361,8 @@ int main() {
     }
     mostrar_tablero(mi_tablero);
   }
+
+  printf("Felicidades al ganador!!!");
 
   return 0;
 }
