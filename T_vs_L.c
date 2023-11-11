@@ -162,102 +162,106 @@ int colocar_ficha(struct tablero* mi_tablero, int jugador) {
 
 
 int mover_ficha(struct tablero* mi_tablero, int jugador) {
-  int columna_origen, fila_origen, columna_destino, fila_destino;
+  int fila_origen, columna_origen, fila_destino, columna_destino;
+  
+  printf("Jugador %d, ingrese la fila de la ficha a mover (0 a %d): ", jugador, mi_tablero->altura - 1);
+  scanf("%d", &fila_origen);
+
+  if (fila_origen < 0 || fila_origen >= mi_tablero->altura) {
+    printf("Fila no válida\n");
+    return 0;
+  }
+
   printf("Jugador %d, ingrese la columna de la ficha a mover (0, 1, 2): ", jugador);
   scanf("%d", &columna_origen);
 
-  if (columna_origen >= 0 && columna_origen <= 2) {
-    printf("Jugador %d, ingrese la fila de la ficha a mover (0 a %d): ", jugador, mi_tablero->altura - 1);
-    scanf("%d", &fila_origen);
-
-    if (fila_origen >= 0 && fila_origen < mi_tablero->altura) {
-      struct lista_doble* columna_origen_seleccionada;
-      switch (columna_origen) {
-        case 0:
-          columna_origen_seleccionada = mi_tablero->col0;
-          break;
-        case 1:
-          columna_origen_seleccionada = mi_tablero->col1;
-          break;
-        case 2:
-          columna_origen_seleccionada = mi_tablero->col2;
-          break;
-        default:
-          printf("Columna no válida\n");
-          return 0;
-      }
-      
-      // Encuentra el nodo en la posición indicada.
-      struct nodo* nodo_origen = columna_origen_seleccionada->cabeza;
-      for (int i = 0; i < fila_origen; i++) {
-        if (nodo_origen != NULL) {
-          nodo_origen = nodo_origen->sig;
-        } else {
-          printf("Fila no válida\n");
-          return 0;
-        }
-      }
-
-      if (nodo_origen->valor == jugador) {
-        printf("Jugador %d, ingrese la columna de destino (0, 1, 2): ", jugador);
-        scanf("%d", &columna_destino);
-
-        if (columna_destino >= 0 && columna_destino <= 2) {
-          printf("Jugador %d, ingrese la fila de destino (0 a %d): ", jugador, mi_tablero->altura - 1);
-          scanf("%d", &fila_destino);
-
-          if (fila_destino >= 0 && fila_destino < mi_tablero->altura) {
-            struct lista_doble* columna_destino_seleccionada;
-            switch (columna_destino) {
-              case 0:
-                columna_destino_seleccionada = mi_tablero->col0;
-                break;
-              case 1:
-                columna_destino_seleccionada = mi_tablero->col1;
-                break;
-              case 2:
-                columna_destino_seleccionada = mi_tablero->col2;
-                break;
-              default:
-                printf("Columna no válida\n");
-                return 0;
-            }
-
-            // Encuentra el nodo en la posición de destino.
-            struct nodo* nodo_destino = columna_destino_seleccionada->cabeza;
-            for (int i = 0; i < fila_destino; i++) {
-              if (nodo_destino != NULL) {
-                nodo_destino = nodo_destino->sig;
-              } else {
-                printf("Fila no válida\n");
-                return 0;
-              }
-            }
-
-            // Realiza el movimiento de la ficha.
-            nodo_destino->valor = jugador;
-            nodo_origen->valor = 0;
-          } else {
-            printf("Fila de destino no válida\n");
-            return 0;
-          }
-        } else {
-          printf("Columna de destino no válida\n");
-          return 0;
-        }
-      } else {
-        printf("No hay una ficha del jugador %d en la posición de origen\n", jugador);
-        return 0;
-      }
-    } else {
-      printf("Fila de origen no válida\n");
-      return 0;
-    }
-  } else {
-    printf("Columna de origen no válida\n");
+  if (columna_origen < 0 || columna_origen > 2) {
+    printf("Columna no válida\n");
     return 0;
   }
+
+  struct lista_doble* columna_origen_seleccionada;
+  switch (columna_origen) {
+    case 0:
+      columna_origen_seleccionada = mi_tablero->col0;
+      break;
+    case 1:
+      columna_origen_seleccionada = mi_tablero->col1;
+      break;
+    case 2:
+      columna_origen_seleccionada = mi_tablero->col2;
+      break;
+    default:
+      printf("Columna no válida\n");
+      return 0;
+  }
+
+  // Encuentra el nodo en la posición indicada.
+  struct nodo* nodo_origen = columna_origen_seleccionada->cabeza;
+  for (int i = 0; i < fila_origen; i++) {
+    if (nodo_origen != NULL) {
+      nodo_origen = nodo_origen->sig;
+    } else {
+      printf("Fila no válida\n");
+      return 0;
+    }
+  }
+
+  if (nodo_origen->valor != jugador) {
+    printf("No hay una ficha del jugador %d en la posición de origen\n", jugador);
+    return 0;
+  }
+
+  printf("Jugador %d, ingrese la fila de destino (0 a %d): ", jugador, mi_tablero->altura - 1);
+  scanf("%d", &fila_destino);
+
+  if (fila_destino < 0 || fila_destino >= mi_tablero->altura) {
+    printf("Fila de destino no válida\n");
+    return 0;
+  }
+
+  printf("Jugador %d, ingrese la columna de destino (0, 1, 2): ", jugador);
+  scanf("%d", &columna_destino);
+
+  if (columna_destino < 0 || columna_destino > 2) {
+    printf("Columna de destino no válida\n");
+    return 0;
+  }
+
+  struct lista_doble* columna_destino_seleccionada;
+  switch (columna_destino) {
+    case 0:
+      columna_destino_seleccionada = mi_tablero->col0;
+      break;
+    case 1:
+      columna_destino_seleccionada = mi_tablero->col1;
+      break;
+    case 2:
+      columna_destino_seleccionada = mi_tablero->col2;
+      break;
+    default:
+      printf("Columna de destino no válida\n");
+      return 0;
+  }
+
+  // Encuentra el nodo en la posición de destino.
+  struct nodo* nodo_destino = columna_destino_seleccionada->cabeza;
+  for (int i = 0; i < fila_destino; i++) {
+    if (nodo_destino != NULL) {
+      nodo_destino = nodo_destino->sig;
+    } else {
+      printf("Fila no válida\n");
+      return 0;
+    }
+  }
+
+  // Realiza el movimiento de la ficha.
+  nodo_destino->valor = jugador;
+  nodo_origen->valor = 0;
+
+  return 1;
 }
+
 
 int ganador(struct tablero* mi_tablero, int jugador) {
   return 0;
