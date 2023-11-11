@@ -162,7 +162,7 @@ int colocar_ficha(struct tablero* mi_tablero, int jugador) {
 
 int mover_ficha(struct tablero* mi_tablero, int jugador) {
   int fila_origen, columna_origen, fila_destino, columna_destino;
-  
+
   printf("Jugador %d, ingrese la fila de la ficha a mover (0 a %d): ", jugador, mi_tablero->altura - 1);
   scanf("%d", &fila_origen);
 
@@ -254,12 +254,19 @@ int mover_ficha(struct tablero* mi_tablero, int jugador) {
     }
   }
 
-  // Realiza el movimiento de la ficha.
+  // Verifica si la posición de destino está ocupada por una ficha del jugador 2.
+  if (nodo_destino->valor == 2) {
+    printf("No puedes mover la ficha del jugador 1 sobre la ficha del jugador 2 directamente\n");
+    return 0;
+  }
+
+  // Realiza el movimiento normal.
   nodo_destino->valor = jugador;
   nodo_origen->valor = 0;
 
   return 1;
 }
+
 
 //Retorna el valor que hay en la fila y columna o un 99 en caso de estar fuera de rango
 int getValor(struct tablero* mi_tablero, int fila, int columna) {
