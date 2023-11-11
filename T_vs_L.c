@@ -112,16 +112,26 @@ void mostrar_tablero(const struct tablero* mi_tablero) {
   }
 }
 
-void colocar_ficha(struct tablero* mi_tablero, int jugador) {
-  int columna, fila;
-  printf("Jugador %d, ingrese la columna (0, 1, 2): ", jugador);
-  scanf("%d", &columna);
+int colocar_ficha(struct tablero* mi_tablero, int jugador) {
+  int fila, columna;
 
-  if (columna >= 0 && columna <= 2) {
-    printf("Jugador %d, ingrese la fila (0 a %d): ", jugador, mi_tablero->altura - 1);
-    scanf("%d", &fila);
+  printf("Jugador %d, ingrese la fila (0 a %d): ", jugador, mi_tablero->altura - 1);
+  scanf("%d", &fila);
 
-    if (fila >= 0 && fila < mi_tablero->altura) {
+  //Si es en la punta de la piramide coloca el valor en las 3 cabezas
+  if(fila == 0) {
+    mi_tablero->col0->cabeza->valor = jugador;
+    mi_tablero->col1->cabeza->valor = jugador;
+    mi_tablero->col2->cabeza->valor = jugador;
+
+    return 1;
+  }
+
+  if (fila < mi_tablero->altura && fila >= 0) {
+    printf("Jugador %d, ingrese la columna (0 a 2): ", jugador);
+    scanf("%d", &columna);
+
+    if (fila > 0) {
       struct lista_doble* columna_seleccionada;
       switch (columna) {
         case 0:
@@ -134,31 +144,34 @@ void colocar_ficha(struct tablero* mi_tablero, int jugador) {
           columna_seleccionada = mi_tablero->col2;
           break;
         default:
-          printf("Columna no válida\n");
-          return;
+          printf("Columna no valida\n");
+          return 0;
       }
 
       // Encuentra el nodo en la posición indicada y coloca la ficha del jugador.
-      struct nodo* nodo = columna_seleccionada->cabeza->sig;
+      struct nodo* nodo = columna_seleccionada->cabeza;
       for (int i = 0; i < fila; i++) {
         if (nodo != NULL) {
           nodo = nodo->sig;
         } else {
-          printf("Fila no válida\n");
-          return;
+          printf("Fila no valida\n");
+          return 0;
         }
       }
-
+      
       nodo->valor = jugador;
+      return 1;
     } else {
-      printf("Fila no válida\n");
+      printf("Fila no valida\n");
+      return 0;
     }
   } else {
-    printf("Columna no válida\n");
+    printf("Fila no valida\n");
+    return 0;
   }
 }
 
-void mover_ficha(struct tablero* mi_tablero, int jugador) {
+int mover_ficha(struct tablero* mi_tablero, int jugador) {
   int columna_origen, fila_origen, columna_destino, fila_destino;
   printf("Jugador %d, ingrese la columna de la ficha a mover (0, 1, 2): ", jugador);
   scanf("%d", &columna_origen);
@@ -181,17 +194,17 @@ void mover_ficha(struct tablero* mi_tablero, int jugador) {
           break;
         default:
           printf("Columna no válida\n");
-          return;
+          return 0;
       }
       
       // Encuentra el nodo en la posición indicada.
-      struct nodo* nodo_origen = columna_origen_seleccionada->cabeza->sig;
+      struct nodo* nodo_origen = columna_origen_seleccionada->cabeza;
       for (int i = 0; i < fila_origen; i++) {
         if (nodo_origen != NULL) {
           nodo_origen = nodo_origen->sig;
         } else {
           printf("Fila no válida\n");
-          return;
+          return 0;
         }
       }
 
@@ -217,17 +230,17 @@ void mover_ficha(struct tablero* mi_tablero, int jugador) {
                 break;
               default:
                 printf("Columna no válida\n");
-                return;
+                return 0;
             }
 
             // Encuentra el nodo en la posición de destino.
-            struct nodo* nodo_destino = columna_destino_seleccionada->cabeza->sig;
+            struct nodo* nodo_destino = columna_destino_seleccionada->cabeza;
             for (int i = 0; i < fila_destino; i++) {
               if (nodo_destino != NULL) {
                 nodo_destino = nodo_destino->sig;
               } else {
                 printf("Fila no válida\n");
-                return;
+                return 0;
               }
             }
 
@@ -236,19 +249,28 @@ void mover_ficha(struct tablero* mi_tablero, int jugador) {
             nodo_origen->valor = 0;
           } else {
             printf("Fila de destino no válida\n");
+            return 0;
           }
         } else {
           printf("Columna de destino no válida\n");
+          return 0;
         }
       } else {
         printf("No hay una ficha del jugador %d en la posición de origen\n", jugador);
+        return 0;
       }
     } else {
       printf("Fila de origen no válida\n");
+      return 0;
     }
   } else {
     printf("Columna de origen no válida\n");
+    return 0;
   }
+}
+
+int ganador(struct tablero* mi_tablero, int jugador) {
+  return 0;
 }
 
 int main() {
@@ -259,22 +281,31 @@ int main() {
 
   mostrar_tablero(mi_tablero);
 
-  for (int turno = 0; turno < mi_tablero->altura * 3; turno++) {
-    printf("\nTurno %d - Jugador %d\n", turno + 1, jugador_actual);
+  int turno = 1;
+  while(!ganador(mi_tablero, jugador_actual)){
 
-    colocar_ficha(mi_tablero, jugador_actual);
-    mostrar_tablero(mi_tablero);
-    
-    //mover_ficha(mi_tablero, jugador_actual);
-   // mostrar_tablero(mi_tablero);
-
-
-    // Cambia al siguiente jugador
-    if (jugador_actual == jugador1) {
-      jugador_actual = jugador2;
+    //Verifica si todavia se tienen que colocar fichas
+    if((jugador_actual == 1 && turno== 1)||(jugador_actual == 2 && turno<= 12)) {
+      //Si se logra colocar la ficha hace el cambio de turno y de jugador, sino se intenta de nuevo
+      if(colocar_ficha(mi_tablero, jugador_actual)) {
+        if (jugador_actual == jugador1) {
+          jugador_actual = jugador2;
+        } else {
+          jugador_actual = jugador1;
+        }
+        turno++;
+      }
     } else {
-      jugador_actual = jugador1;
+      if(mover_ficha(mi_tablero, jugador_actual)) {
+        if (jugador_actual == jugador1) {
+            jugador_actual = jugador2;
+          } else {
+            jugador_actual = jugador1;
+          }
+          turno++;
+      }
     }
+    mostrar_tablero(mi_tablero);
   }
 
   return 0;
