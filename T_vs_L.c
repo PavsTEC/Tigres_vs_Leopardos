@@ -328,7 +328,7 @@ int mover_ficha(struct tablero* mi_tablero, int jugador) {
 
   // Realiza el movimiento para comer.
   if(jugador == 1) {
-    //Comer hacia arriba
+    //Comer hacia abajo
     if(fila_origen - fila_destino == 2 && getValor(mi_tablero, fila_destino+1, columna_origen) == 2) {
       setZeroNodo(mi_tablero, fila_destino+1, columna_origen);//Elimina la ficha comida
       mi_tablero->fichas_comidas++;
@@ -355,8 +355,8 @@ int mover_ficha(struct tablero* mi_tablero, int jugador) {
     }
 
     //Comer hacia abajo
-    else if(fila_origen - fila_destino == -2 && getValor(mi_tablero, fila_destino-1, columna_origen) == 2) {
-      setZeroNodo(mi_tablero, fila_destino-1, columna_origen);//Elimina la ficha comida
+    else if(fila_origen - fila_destino == -2 && getValor(mi_tablero, fila_destino-1, columna_destino) == 2) {
+      nodo_destino->prev->valor = 0;//Elimina la ficha comida
       mi_tablero->fichas_comidas++;
 
       //Si el destino era la punta del triangulo cambia las 3 cabezas
