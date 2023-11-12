@@ -326,14 +326,16 @@ int mover_ficha(struct tablero* mi_tablero, int jugador) {
   // Realiza el movimiento para comer.
   if(jugador == 1) {
     //Comer hacia arriba
-    if(fila_origen - fila_destino == 2 && getValor(mi_tablero, fila_destino+1, columna_destino) == 2) {
-      nodo_destino->sig->valor = 0;//Elimina la ficha comida
+    if(fila_origen - fila_destino == 2 && getValor(mi_tablero, fila_destino+1, columna_origen) == 2) {
+      setZeroNodo(mi_tablero, fila_destino+1, columna_origen);//Elimina la ficha comida
 
       //Si el destino era la punta del triangulo cambia las 3 cabezas
       if(fila_destino == 0) {
         mi_tablero->col0->cabeza->valor = jugador;
         mi_tablero->col1->cabeza->valor = jugador;
         mi_tablero->col2->cabeza->valor = jugador;
+
+        nodo_origen->valor = 0;
       } else {
         nodo_destino->valor = jugador;
         // Si la fila origen es la punta de la piramide deja el valor en 0 en las 3 columnas 
