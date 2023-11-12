@@ -16,6 +16,7 @@ struct tablero {
   struct lista_doble* col1;
   struct lista_doble* col2;
   int altura;
+  int fichas_comidas;
 };
 
 void insertar(struct lista_doble* lista, int valor) {
@@ -61,6 +62,8 @@ struct tablero* crear_tablero() {
   nuevo_tablero->col2 = crear_lista(altura);
 
   nuevo_tablero->altura = altura;
+
+  nuevo_tablero->fichas_comidas = 0;
 
   return nuevo_tablero;
 }
@@ -328,6 +331,7 @@ int mover_ficha(struct tablero* mi_tablero, int jugador) {
     //Comer hacia arriba
     if(fila_origen - fila_destino == 2 && getValor(mi_tablero, fila_destino+1, columna_origen) == 2) {
       setZeroNodo(mi_tablero, fila_destino+1, columna_origen);//Elimina la ficha comida
+      mi_tablero->fichas_comidas++;
 
       //Si el destino era la punta del triangulo cambia las 3 cabezas
       if(fila_destino == 0) {
@@ -351,8 +355,9 @@ int mover_ficha(struct tablero* mi_tablero, int jugador) {
     }
 
     //Comer hacia abajo
-    else if(fila_origen - fila_destino == -2 && getValor(mi_tablero, fila_destino-1, columna_destino) == 2) {
-      nodo_destino->prev->valor = 0;//Elimina la ficha comida
+    else if(fila_origen - fila_destino == -2 && getValor(mi_tablero, fila_destino-1, columna_origen) == 2) {
+      setZeroNodo(mi_tablero, fila_destino-1, columna_origen);//Elimina la ficha comida
+      mi_tablero->fichas_comidas++;
 
       //Si el destino era la punta del triangulo cambia las 3 cabezas
       if(fila_destino == 0) {
@@ -379,6 +384,7 @@ int mover_ficha(struct tablero* mi_tablero, int jugador) {
       // Elimina la ficha comida
       // Encuentra el nodo a la izquierda de la posición de destino y lo coloca con valor 0.
       setZeroNodo(mi_tablero, fila_destino, columna_destino-1);
+      mi_tablero->fichas_comidas++;
 
       nodo_destino->valor = jugador;
       nodo_origen->valor = 0;
@@ -391,6 +397,7 @@ int mover_ficha(struct tablero* mi_tablero, int jugador) {
       // Elimina la ficha comida
       // Encuentra el nodo a la derecha de la posición de destino y lo coloca con valor 0.
       setZeroNodo(mi_tablero, fila_destino, columna_destino-1);
+      mi_tablero->fichas_comidas++;
 
       nodo_destino->valor = jugador;
       nodo_origen->valor = 0;
@@ -497,6 +504,9 @@ int ganador(struct tablero* mi_tablero, int jugador) {
     }
     return 0;
   } else {
+    if(mi_tablero->fichas_comidas == 3) {
+      return 1;
+    }
     return 0;
   }
 }
