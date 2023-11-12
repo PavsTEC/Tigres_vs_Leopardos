@@ -176,8 +176,12 @@ int mover_ficha(struct tablero* mi_tablero, int jugador) {
     return 0;
   }
 
-  printf("Jugador %d, ingrese la columna de la ficha a mover (0, 1, 2): ", jugador);
-  scanf("%d", &columna_origen);
+  if(fila_origen != 0) {
+    printf("Jugador %d, ingrese la columna de la ficha a mover (0, 1, 2): ", jugador);
+    scanf("%d", &columna_origen);
+  } else {
+    columna_origen = 0;
+  }
 
   if (columna_origen < 0 || columna_origen > 2) {
     printf("Columna no válida\n");
@@ -196,7 +200,7 @@ int mover_ficha(struct tablero* mi_tablero, int jugador) {
       columna_origen_seleccionada = mi_tablero->col2;
       break;
     default:
-      printf("Columna no válida\n");
+      printf("Columna no valida\n");
       return 0;
   }
 
@@ -206,13 +210,13 @@ int mover_ficha(struct tablero* mi_tablero, int jugador) {
     if (nodo_origen != NULL) {
       nodo_origen = nodo_origen->sig;
     } else {
-      printf("Fila no válida\n");
+      printf("Fila no valida\n");
       return 0;
     }
   }
 
   if (nodo_origen->valor != jugador) {
-    printf("No hay una ficha del jugador %d en la posición de origen\n", jugador);
+    printf("No hay una ficha del jugador %d en la posicion de origen\n", jugador);
     return 0;
   }
 
@@ -224,8 +228,12 @@ int mover_ficha(struct tablero* mi_tablero, int jugador) {
     return 0;
   }
 
-  printf("Jugador %d, ingrese la columna de destino (0, 1, 2): ", jugador);
-  scanf("%d", &columna_destino);
+  if(fila_destino != 0) {
+    printf("Jugador %d, ingrese la columna de destino (0, 1, 2): ", jugador);
+    scanf("%d", &columna_destino);
+  } else {
+    columna_destino = 0;
+  }
 
   if (columna_destino < 0 || columna_destino > 2) {
     printf("Columna de destino no válida\n");
@@ -254,24 +262,143 @@ int mover_ficha(struct tablero* mi_tablero, int jugador) {
     if (nodo_destino != NULL) {
       nodo_destino = nodo_destino->sig;
     } else {
-      printf("Fila no válida\n");
+      printf("Fila no valida\n");
       return 0;
     }
   }
 
-  // Verifica si la posición de destino está ocupada por una ficha del jugador 2.
-  if (nodo_destino->valor == 2) {
-    printf("No puedes mover la ficha del jugador 1 sobre la ficha del jugador 2 directamente\n");
+  // Verifica si la posición de destino está ocupada.
+  if (nodo_destino->valor == 1 || nodo_destino->valor == 2) {
+    printf("No puedes mover la ficha sobre otra ficha.\n");
     return 0;
   }
 
-  // Realiza el movimiento normal.
-  nodo_destino->valor = jugador;
-  nodo_origen->valor = 0;
+  // Realiza el movimiento normal de forma vertical cuando el origen es la punta.
+  if(fila_origen == 0 && abs(fila_origen - fila_destino) == 1) {
+    nodo_destino->valor = jugador;
 
-  return 1;
+    mi_tablero->col0->cabeza->valor = 0;
+    mi_tablero->col1->cabeza->valor = 0;
+    mi_tablero->col2->cabeza->valor = 0;
+
+    return 1;
+  }
+
+  // Realiza el movimiento normal de forma vertical cuando el destino es la punta.
+  if(fila_destino == 0 && abs(fila_origen - fila_destino) == 1) {
+    nodo_origen->valor = 0;
+
+    mi_tablero->col0->cabeza->valor = jugador;
+    mi_tablero->col1->cabeza->valor = jugador;
+    mi_tablero->col2->cabeza->valor = jugador;
+
+    return 1;
+  }
+
+  // Realiza el movimiento normal de forma vertical.
+  if((abs(fila_origen - fila_destino) == 1) && (columna_origen - columna_destino == 0)) {
+  // Si la fila destino es la punta de la piramide copia el valor en las 3 columnas 
+    if(fila_destino == 0) {
+      mi_tablero->col0->cabeza->valor = jugador;
+      mi_tablero->col1->cabeza->valor = jugador;
+      mi_tablero->col2->cabeza->valor = jugador;
+    } else {
+      nodo_destino->valor = jugador;
+      // Si la fila origen es la punta de la piramide deja el valor en 0 en las 3 columnas 
+      if(fila_origen == 0) {
+        mi_tablero->col0->cabeza->valor = 0;
+        mi_tablero->col1->cabeza->valor = 0;
+        mi_tablero->col2->cabeza->valor = 0;
+      } else {
+        nodo_origen->valor = 0;
+      }
+    }
+    return 1;
+  }
+
+  // Realiza el movimiento normal de forma horizontal.
+  else if((abs(columna_origen - columna_destino) == 1) && (fila_origen - fila_destino == 0)) {
+    nodo_destino->valor = jugador;
+    nodo_origen->valor = 0;
+    return 1;
+  }
+
+  // Realiza el movimiento para comer.
+  if(jugador == 1) {
+    //Comer hacia arriba
+    if(fila_origen - fila_destino == 2 && getValor(mi_tablero, fila_destino+1, columna_destino) == 2) {
+      nodo_destino->sig->valor = 0;//Elimina la ficha comida
+
+      //Si el destino era la punta del triangulo cambia las 3 cabezas
+      if(fila_destino == 0) {
+        mi_tablero->col0->cabeza->valor = jugador;
+        mi_tablero->col1->cabeza->valor = jugador;
+        mi_tablero->col2->cabeza->valor = jugador;
+      } else {
+        nodo_destino->valor = jugador;
+        // Si la fila origen es la punta de la piramide deja el valor en 0 en las 3 columnas 
+        if(fila_origen == 0) {
+          mi_tablero->col0->cabeza->valor = 0;
+          mi_tablero->col1->cabeza->valor = 0;
+          mi_tablero->col2->cabeza->valor = 0;
+        } else {
+          nodo_origen->valor = 0;
+        }
+      }
+      return 1;
+    }
+
+    //Comer hacia abajo
+    else if(fila_origen - fila_destino == -2 && getValor(mi_tablero, fila_destino-1, columna_destino) == 2) {
+      nodo_destino->prev->valor = 0;//Elimina la ficha comida
+
+      //Si el destino era la punta del triangulo cambia las 3 cabezas
+      if(fila_destino == 0) {
+        mi_tablero->col0->cabeza->valor = jugador;
+        mi_tablero->col1->cabeza->valor = jugador;
+        mi_tablero->col2->cabeza->valor = jugador;
+      } else {
+        nodo_destino->valor = jugador;
+        // Si la fila origen es la punta de la piramide deja el valor en 0 en las 3 columnas 
+        if(fila_origen == 0) {
+          mi_tablero->col0->cabeza->valor = 0;
+          mi_tablero->col1->cabeza->valor = 0;
+          mi_tablero->col2->cabeza->valor = 0;
+        } else {
+          nodo_origen->valor = 0;
+        }
+      }
+      return 1;
+    }
+
+    //Comer hacia la derecha
+    else if(columna_origen - columna_destino == -2 && getValor(mi_tablero, fila_destino, columna_destino-1) == 2) {
+
+      // Elimina la ficha comida
+      // Encuentra el nodo a la izquierda de la posición de destino y lo coloca con valor 0.
+      setZeroNodo(mi_tablero, fila_destino, columna_destino-1);
+
+      nodo_destino->valor = jugador;
+      nodo_origen->valor = 0;
+      return 1;
+    }
+
+    //Comer hacia la izquierda
+    else if(columna_origen - columna_destino == 2 && getValor(mi_tablero, fila_destino, columna_destino+1) == 2) {
+
+      // Elimina la ficha comida
+      // Encuentra el nodo a la derecha de la posición de destino y lo coloca con valor 0.
+      setZeroNodo(mi_tablero, fila_destino, columna_destino-1);
+
+      nodo_destino->valor = jugador;
+      nodo_origen->valor = 0;
+      return 1;
+    }
+  }
+
+  printf("Movimiento invalido.\n");
+  return 0;
 }
-
 
 //Retorna el valor que hay en la fila y columna o un 99 en caso de estar fuera de rango
 int getValor(struct tablero* mi_tablero, int fila, int columna) {
@@ -293,6 +420,26 @@ int getValor(struct tablero* mi_tablero, int fila, int columna) {
   return nodo->valor;
 }
 
+//Retorna el valor que hay en la fila y columna o un 99 en caso de estar fuera de rango
+void setZeroNodo(struct tablero* mi_tablero, int fila, int columna) {
+  if (fila < 0 || fila >= mi_tablero->altura || columna < 0 || columna > 2) {
+    return;  // Fuera de rango
+  }
+
+  struct lista_doble* columnas[3] = {mi_tablero->col0, mi_tablero->col1, mi_tablero->col2};
+  struct nodo* nodo = columnas[columna]->cabeza;
+
+  for (int i = 0; i < fila; i++) {
+    if (nodo != NULL) {
+      nodo = nodo->sig;
+    } else {
+      return;  // Fuera de rango
+    }
+  }
+
+  nodo->valor = 0;
+}
+
 int ganador(struct tablero* mi_tablero, int jugador) {
   if(jugador == 1) {
     //Arreglo con las columnas del tablero para acceder mas facilmente
@@ -310,7 +457,7 @@ int ganador(struct tablero* mi_tablero, int jugador) {
       for (int i = 0; i < 3; i++) {
         if(nodos_actuales[i]->valor == 1) {
           columna = i;
-          fila = j;
+          fila = j+1;
         }
       }
 
