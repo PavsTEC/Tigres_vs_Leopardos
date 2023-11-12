@@ -469,8 +469,21 @@ int ganador(struct tablero* mi_tablero, int jugador) {
       }
     }//Para este punto ya se encontro la fila y columna
 
-    //Paso 2. Verificar si el cazador esta encerrado
-    if(
+    //Paso 2.1. Verificar si el cazador esta encerrado en la punta del triangulo.
+    if(fila == 0){
+      if(
+        getValor(mi_tablero, 1, 0) > 0 &&
+        getValor(mi_tablero, 1, 1) > 0 &&
+        getValor(mi_tablero, 1, 2) > 0 &&
+        getValor(mi_tablero, 2, 0) > 0 &&
+        getValor(mi_tablero, 2, 1) > 0 &&
+        getValor(mi_tablero, 2, 2) > 0
+      ) {
+        return 1;
+      }
+    }
+    //Paso 2.2. Verificar si el cazador esta encerrado
+    else if(
       getValor(mi_tablero, fila-1, columna) > 0 &&
       getValor(mi_tablero, fila+1, columna) > 0 &&
       getValor(mi_tablero, fila, columna+1) > 0 &&
